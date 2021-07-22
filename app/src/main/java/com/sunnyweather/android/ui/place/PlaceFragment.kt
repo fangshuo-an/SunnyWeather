@@ -1,5 +1,6 @@
 package com.sunnyweather.android.ui.place
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.sunnyweather.android.R
+import com.sunnyweather.android.ui.weather.WeatherActivity
 
 class PlaceFragment : Fragment() {
     val viewModel by lazy { ViewModelProvider(this).get(PlaceViewModel::class.java) }
@@ -33,6 +35,17 @@ class PlaceFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        if (viewModel.isPlaceSaved()) {
+            val place = viewModel.getSavePlace()
+            val intent = Intent(context, WeatherActivity::class.java).apply {
+                putExtra("location_lng", place.location.lng)
+                putExtra("location_lat", place.location.lat)
+                putExtra("place_name", place.name)
+            }
+            startActivity(intent)
+            activity?.finish()
+            return
+        }
         val layoutManager = LinearLayoutManager(activity)
         val recyclerView: RecyclerView? = fpView?.findViewById(R.id.recyclerView)
         val bgImageView: ImageView? = fpView?.findViewById(R.id.bgImageView)
@@ -41,7 +54,7 @@ class PlaceFragment : Fragment() {
         recyclerView?.adapter = adapter
 
         val searchPlaceEdit: EditText? = fpView?.findViewById(R.id.searchPlaceEdit)
-        searchPlaceEdit?.addTextChangedListener { editable ->   //监听搜索框内农辩护情况
+        searchPlaceEdit?.addTextChangedListener { editable ->   //监听搜索框内辩护情况
             val content = editable.toString()
             if (content.isNotEmpty()) {
                 viewModel.searchPlaces(content)     //发起网络请求
