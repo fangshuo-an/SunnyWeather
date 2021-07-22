@@ -1,15 +1,22 @@
 package com.sunnyweather.android.ui.weather
 
+import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.InputMethod
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.sunnyweather.android.R
 import com.sunnyweather.android.databinding.ActivityWeatherBinding
 import com.sunnyweather.android.logic.model.Weather
@@ -19,6 +26,8 @@ import java.util.*
 
 class WeatherActivity : AppCompatActivity() {
 
+    lateinit var drawerLayout: DrawerLayout
+    private lateinit var swipeRefresh: SwipeRefreshLayout
     val viewModel by lazy { ViewModelProvider(this).get(WeatherViewModel::class.java) }
 
     private lateinit var placeName: TextView
@@ -28,6 +37,35 @@ class WeatherActivity : AppCompatActivity() {
         setContentView(R.layout.activity_weather)
         val decorView = window.decorView        //跟视图
 //        val controller = ViewCompat.getWindowSystemUiVisibility(decorView)
+
+        swipeRefresh = findViewById(R.id.swipeRefresh)
+
+        val navBtn = findViewById<Button>(R.id.navBtn)
+        drawerLayout = findViewById<DrawerLayout>(R.id.drawerLayout)
+        navBtn.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+            }
+
+            override fun onDrawerClosed(drawerView: View) { //滑块隐藏时，隐藏输入法
+                val manager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                manager.hideSoftInputFromWindow(
+                    drawerView.windowToken,
+                    InputMethodManager.HIDE_NOT_ALWAYS
+                )
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {
+
+            }
+
+        })
 
         window.statusBarColor = Color.TRANSPARENT
         if (viewModel.locationLng.isEmpty()) {
@@ -46,8 +84,18 @@ class WeatherActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "无法成功获取天气信息", Toast.LENGTH_SHORT).show()
             }
+            swipeRefresh.isRefreshing = false
         })
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)  //下拉刷新进度条颜色
+        refreshWeather()
+        swipeRefresh.setOnRefreshListener {
+            refreshWeather()
+        }
+    }
+
+     fun refreshWeather() {
         viewModel.refreshWeather(viewModel.locationLng, viewModel.locationLat)
+        swipeRefresh.isRefreshing = true
     }
 
     private fun showWeatherInfo(weather: Weather) {

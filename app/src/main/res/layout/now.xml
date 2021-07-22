@@ -2,10 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nowLayout"
     android:layout_width="match_parent"
     android:layout_height="530dp"
     android:orientation="vertical"
-    android:id="@+id/nowLayout"
     tools:context=".ui.weather.WeatherActivity">
 
     <FrameLayout
@@ -13,6 +13,14 @@
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:fitsSystemWindows="true">
+
+        <Button
+            android:id="@+id/navBtn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:background="@drawable/ic_home" />
 
         <TextView
             android:id="@+id/placeName"
